@@ -5,7 +5,11 @@ VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnalData", "AnalData\AnalData.csproj", "{14E9E966-D2C5-4DEE-BD65-20793BCFE5C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{E232DB19-27D8-4F32-BC3F-31555C0FFD52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{E232DB19-27D8-4F32-BC3F-31555C0FFD52}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessMetering", "ProcessMetering\ProcessMetering.csproj", "{AB390ACF-6EDD-4301-9E94-95C5C572088C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoElasticDataConnector", "MongoElasticDataConnector\MongoElasticDataConnector.csproj", "{2A9E3E02-B8AC-4600-8443-6683BE3C9E6A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{E232DB19-27D8-4F32-BC3F-31555C0FFD52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E232DB19-27D8-4F32-BC3F-31555C0FFD52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E232DB19-27D8-4F32-BC3F-31555C0FFD52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB390ACF-6EDD-4301-9E94-95C5C572088C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB390ACF-6EDD-4301-9E94-95C5C572088C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB390ACF-6EDD-4301-9E94-95C5C572088C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB390ACF-6EDD-4301-9E94-95C5C572088C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A9E3E02-B8AC-4600-8443-6683BE3C9E6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A9E3E02-B8AC-4600-8443-6683BE3C9E6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A9E3E02-B8AC-4600-8443-6683BE3C9E6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A9E3E02-B8AC-4600-8443-6683BE3C9E6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

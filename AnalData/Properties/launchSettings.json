@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "Профиль 1": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\skld0\\source\\repos\\AnalData\\AnalData\\bin\\Debug\\net6.0\\AnalData.exe",
+      "nativeDebugging": false
+    }
+  }
+}

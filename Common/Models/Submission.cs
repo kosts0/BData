@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AnalData.Models
+namespace Common.Models
 {
     public class Submission
     {
@@ -29,7 +29,7 @@ namespace AnalData.Models
         public long ContestId { get; set; }
         [BsonElement("creationTimeSeconds")]
         private long CreationTimeUnix { get; set; }
-        public DateTime CreationTime => new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc).AddSeconds(CreationTimeUnix);
+        public DateTime CreationTime => new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(CreationTimeUnix);
         [BsonElement("programmingLanguage")]
         public string ProgrammingLanguage { get; set; }
         [BsonElement("verdict")]
@@ -41,6 +41,6 @@ namespace AnalData.Models
         [BsonElement("problem")]
         public Problem problem { get; set; }
         public string SolutionCode { get; set; }
-        public string AuthorHandle { get; set; } 
+        public string AuthorHandle { get; set; }
     }
 }

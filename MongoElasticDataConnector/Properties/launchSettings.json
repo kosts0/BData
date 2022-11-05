@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MongoElasticDataConnector": {
+      "commandName": "Project",
+      "commandLineArgs": "50 200"
+    }
+  }
+}
