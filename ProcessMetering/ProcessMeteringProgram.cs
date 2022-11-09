@@ -26,7 +26,7 @@ foreach(var currentBatchSize in batchSizeList)
     DateTime endTime = DateTime.Now;
     int exitCode = 0;
     Process process = new();
-    process = Process.Start(processPath, currentBatchSize.ToString() + " 100000");
+    process = Process.Start(processPath, currentBatchSize.ToString() + " 500000");
     process.EnableRaisingEvents = true;
     process.Exited += new EventHandler(ProcessExited);
 

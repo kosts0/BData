@@ -60,10 +60,5 @@ namespace Common
                 return mongoDb;
             }
         }
-        public async Task CopySubmissionsAsync()
-        {
-            
-
-        }
     }
 }

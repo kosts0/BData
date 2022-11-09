@@ -33,12 +33,10 @@ if (Environment.GetCommandLineArgs().Count() > 1)
     batchSize = Convert.ToInt32(Environment.GetCommandLineArgs()[1]);
 }
 string indexName = $"submission_index_time_check_batch{batchSize}_";
-
 connector.ElasticClient.Indices.Delete(indexName);
 var response2 = connector.ElasticClient.Indices.Create(indexName,
-                index => index.Map<Submission>(
-                    x => x.AutoMap()));
-
+                    index => index.Map<Submission>(
+                        x => x.AutoMap()));
 var options = new FindOptions<BsonDocument>
 {
     BatchSize = batchSize,
