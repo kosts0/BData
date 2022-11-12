@@ -17,16 +17,35 @@ namespace СfDataReciver
 {
     public class CfApiScripts
     {
-        IMongoDatabase Db;
+        public IMongoDatabase Db { get; set; }
         const string codeforcesApiUrl = "https://codeforces.com/api/";
+        public IMongoCollection<BsonDocument> ContestStatus
+        {
+            get
+            {
+                return Db.GetCollection<BsonDocument>("ContestStatus");
+            }
+        }
+        /// <summary>
+        /// Название коллекции в MongoDb, куда записывать данные полученные по Api
+        /// </summary>
+        private string WriteCollection { get; set; } = "ContestStatus";
+        /// <summary>
+        /// Список контестов, по которым получена информация. Формируется из лог файла, куда записываются Id контеста, по завершению стягивания информации
+        /// </summary>
+        public List<long> LoadedContestList { get; private set; }
         public CfApiScripts()
         {
             string connectionString = "mongodb://localhost:27017";
             MongoClient dbClient = new(connectionString);
             Db = dbClient.GetDatabase("Test");
-
+            LoadedContestList = UsedIdList();
         }
-        public List<long> UsedIdList(string filePath = @"C:\Users\skld0\source\repos\AnalData\СfDataReciver\UsedContests.txt")
+        public CfApiScripts(string writeCollection) : this()
+        {
+            WriteCollection = writeCollection;
+        }
+        private List<long> UsedIdList(string filePath = @"C:\Users\skld0\source\repos\AnalData\СfDataReciver\UsedContests.txt")
         {
             List<long> usedIdList = new();
             using (FileStream fstream = File.OpenRead(filePath))
@@ -37,12 +56,12 @@ namespace СfDataReciver
                 fstream.Read(buffer, 0, buffer.Length);
                 // декодируем байты в строку
                 string textFromFile = Encoding.Default.GetString(buffer);
-                usedIdList = textFromFile.Split('\n').Select(l => Convert.ToInt64(Regex.Match(l, @"(\d+)").Value)).ToList();
+                usedIdList = textFromFile.Split('\n').Where(l => Regex.IsMatch(l, @"(\d+)")).Select(l => Convert.ToInt64(Regex.Match(l, @"(\d+)").Value)).ToList();
                 Console.WriteLine($"Контесты с информацией: \n{textFromFile}");
             }
             return usedIdList;
         }
-        List<WebProxy?> proxyList = new List<WebProxy?>()
+        List<WebProxy?> proxyList => new List<WebProxy?>()
         {
             new WebProxy() {Address = new Uri(@"http://220.179.219.46:8089")},
             new WebProxy() {Address = new Uri(@"http://218.64.139.73:7890")},
@@ -55,11 +74,6 @@ namespace СfDataReciver
             JObject getRequest()
             {
                 HttpClient client = new();
-                int randomNumber = rnd.Next(proxyList.Count);
-                if(proxyList[randomNumber] != null)
-                {
-                    client = new HttpClient(handler: new HttpClientHandler() { Proxy = proxyList[randomNumber]});
-                }
                 var responce = client.GetAsync(url).Result;
                 var responceResult = responce.Content.ReadAsStringAsync().Result;
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(responceResult);
@@ -185,27 +199,26 @@ namespace СfDataReciver
             foreach (var contest in contestList.Find(new BsonDocument() { { "phase", "FINISHED" } }).ToList())
             {
                 if (usedList.Contains(contest["id"].AsInt64)) continue;
-                WriteSolutionCollection(contest);
+                WriteSolutionCollection(contest["id"].AsInt64);
             }
         }
-        async void WriteSolutionCollection(BsonDocument contestDocument)
+        public async Task WriteSolutionCollection(long contestId, int batchSize = 500)
         {
             int startIndex = 1;
-            int step = 500;
-            var contestStatusCollection = Db.GetCollection<BsonDocument>("ContestStatus");
+            var contestStatusCollection = Db.GetCollection<BsonDocument>(WriteCollection);
             bool breakCondition = true;
             List<BsonDocument> currentSolutionList = new();
             do
             {
-                currentSolutionList = GetContestSolutionList(contestDocument["id"].AsInt64, startIndex, step);
-                contestStatusCollection.InsertManyAsync(currentSolutionList, new InsertManyOptions() { IsOrdered = false });
-                breakCondition = currentSolutionList.Count != step;
-                startIndex+= step;
+                currentSolutionList = GetContestSolutionList(contestId, startIndex, batchSize);
+                await contestStatusCollection.InsertManyAsync(currentSolutionList, new InsertManyOptions() { IsOrdered = false });
+                breakCondition = currentSolutionList.Count != batchSize;
+                startIndex+= batchSize;
             } while (!breakCondition);
-            Console.WriteLine($"В контесте {contestDocument["id"].AsInt64} добавлено {startIndex + currentSolutionList.Count} записей о попытках");
+            Console.WriteLine($"В контесте {contestId} добавлено {startIndex + currentSolutionList.Count} записей о попытках");
             using (StreamWriter writer = new StreamWriter(@"C:\Users\skld0\source\repos\AnalData\СfDataReciver\UsedContests.txt", true))
             {
-                await writer.WriteLineAsync($"\nВ контесте {contestDocument["id"].AsInt64} добавлено {startIndex + currentSolutionList.Count} записей о попытках");
+                await writer.WriteLineAsync($"В контесте {contestId} добавлено {startIndex + currentSolutionList.Count} записей о попытках");
             }
 
         }

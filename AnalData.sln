@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessMetering", "ProcessM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoElasticDataConnector", "MongoElasticDataConnector\MongoElasticDataConnector.csproj", "{2A9E3E02-B8AC-4600-8443-6683BE3C9E6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "СfDataReciver", "СfDataReciver\СfDataReciver.csproj", "{96BB5042-560A-475E-B074-7A400BCACFAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "СfDataReciver", "СfDataReciver\СfDataReciver.csproj", "{96BB5042-560A-475E-B074-7A400BCACFAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CfDataMetering", "CfDataMetering\CfDataMetering.csproj", "{E7335DBF-E2BA-4383-8B44-0A08A30CA1B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{96BB5042-560A-475E-B074-7A400BCACFAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96BB5042-560A-475E-B074-7A400BCACFAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96BB5042-560A-475E-B074-7A400BCACFAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7335DBF-E2BA-4383-8B44-0A08A30CA1B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7335DBF-E2BA-4383-8B44-0A08A30CA1B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7335DBF-E2BA-4383-8B44-0A08A30CA1B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7335DBF-E2BA-4383-8B44-0A08A30CA1B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
