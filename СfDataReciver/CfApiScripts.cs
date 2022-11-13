@@ -1,4 +1,6 @@
-﻿using MongoDB.Bson;
+﻿using Common.Models;
+using HtmlAgilityPack;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -202,7 +204,7 @@ namespace СfDataReciver
                 WriteSolutionCollection(contest["id"].AsInt64);
             }
         }
-        public async Task WriteSolutionCollection(long contestId, int batchSize = 500)
+        public async Task WriteSolutionCollection(long contestId, int batchSize = 1500)
         {
             int startIndex = 1;
             var contestStatusCollection = Db.GetCollection<BsonDocument>(WriteCollection);
@@ -220,7 +222,58 @@ namespace СfDataReciver
             {
                 await writer.WriteLineAsync($"В контесте {contestId} добавлено {startIndex + currentSolutionList.Count} записей о попытках");
             }
+        }
+        public async Task GetSolutionCode()
+        {
+            var ContestStatusDb = Db.GetCollection<BsonDocument>("ContestStatus");
 
+            var filter = Builders<BsonDocument>.Filter.Exists("SolutionCode", false);
+            filter &= Builders<BsonDocument>.Filter.Eq("author.participantType", "CONTESTANT");
+            using (var cursor = await ContestStatusDb.FindAsync(filter))
+            {
+                while (cursor.MoveNext())
+                {
+                    foreach(var item in cursor.Current)
+                    {
+                        var updateSettings = new BsonDocument("$set", new BsonDocument("SolutionCode", GetSolutionCodeText(item["contestId"].AsInt64.ToString(), item["_id"].AsInt64.ToString()) ?? ""));
+                        await ContestStatusDb.UpdateOneAsync(new BsonDocument() { { "_id", item["_id"].AsInt64 } }, updateSettings);
+                    }
+                    
+                }
+            }
+        }
+
+        public string GetSolutionCodeText(string contestId, string solutionId)
+        {
+            string url = $"https://codeforces.com/contest/{contestId}/submission/{solutionId}";
+            string getRequest()
+            {
+                HttpClient client = new();
+                var responce = client.GetAsync(url).Result;
+                var responceResult = responce.Content.ReadAsStringAsync().Result;
+                return responceResult;
+            }
+            bool succesed = false;
+            while (!succesed)
+            {
+
+                try
+                {
+                    var documentText = getRequest();
+                    HtmlDocument document = new();
+                    document.LoadHtml(documentText);
+
+                    var result = document.DocumentNode.SelectSingleNode("//*[@id='program-source-text']")?.InnerText;
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Thread.Sleep(TimeSpan.FromSeconds(0.5));
+                    continue;
+                }
+            }
+            throw new Exception("Не удалось получить код решения");
         }
     }
 }

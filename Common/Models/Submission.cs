@@ -23,6 +23,7 @@ namespace Common.Models
             TimeConsumedMillis = bson["timeConsumedMillis"].AsInt64;
             AuthorHandle = bson["author"].AsBsonDocument["members"].AsBsonArray[0].AsBsonDocument["handle"].AsString;
             problem = BsonSerializer.Deserialize<Problem>(bson["problem"].AsBsonDocument);
+            ParticipantType = bson["author"].AsBsonDocument["participantType"].AsString;
         }
         public long id { get; set; }
         [BsonElement("contestId")]
@@ -40,7 +41,9 @@ namespace Common.Models
         public long TimeConsumedMillis { get; set; }
         [BsonElement("problem")]
         public Problem problem { get; set; }
+        [BsonElement("SolutionCode")]
         public string SolutionCode { get; set; }
         public string AuthorHandle { get; set; }
+        public string ParticipantType { get; set; }
     }
 }

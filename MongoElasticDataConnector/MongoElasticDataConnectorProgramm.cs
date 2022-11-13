@@ -32,24 +32,18 @@ if (Environment.GetCommandLineArgs().Count() > 1)
 {
     batchSize = Convert.ToInt32(Environment.GetCommandLineArgs()[1]);
 }
-string indexName = $"submission_index_time_check_batch{batchSize}_";
+string indexName = $"submission_index_master";
 connector.ElasticClient.Indices.Delete(indexName);
 var response2 = connector.ElasticClient.Indices.Create(indexName,
-                    index => index.Map<Submission>(
+                    index => index.Map<SubmissionWithUsers>(
                         x => x.AutoMap()));
-var options = new FindOptions<BsonDocument>
-{
-    BatchSize = batchSize,
-    Limit = limit,
-    
-};
-using (var cursor = await submissionCollection.FindAsync(new BsonDocument() { { "author.participantType", "CONTESTANT" } }, options))
+using (var cursor = await submissionCollection.FindAsync(new BsonDocument() { { "author.participantType", "CONTESTANT" } }))
 {
     while (cursor.MoveNext())
     {
-        var subm = cursor.Current.ToList();
-        List<Submission> summ2 = subm.Select(s => new Submission(s)).ToList();
-        var response = connector.ElasticClient.IndexMany(summ2, indexName);
+        var user = await 
+        List<SubmissionWithUsers> subm = cursor.Current.Select(s => new SubmissionWithUsers(s) { User = connector}).ToList();
+        var response = connector.ElasticClient.IndexMany(subm, indexName);
         if (!response.IsValid)
         {
             throw new Exception(response.DebugInformation);
