@@ -24,6 +24,7 @@ namespace Common.Models
             AuthorHandle = bson["author"].AsBsonDocument["members"].AsBsonArray[0].AsBsonDocument["handle"].AsString;
             problem = BsonSerializer.Deserialize<Problem>(bson["problem"].AsBsonDocument);
             ParticipantType = bson["author"].AsBsonDocument["participantType"].AsString;
+            SolutionCode = bson.GetValue("SolutionCode", null)?.AsString ?? "";
         }
         public long id { get; set; }
         [BsonElement("contestId")]

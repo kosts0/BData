@@ -223,25 +223,6 @@ namespace СfDataReciver
                 await writer.WriteLineAsync($"В контесте {contestId} добавлено {startIndex + currentSolutionList.Count} записей о попытках");
             }
         }
-        public async Task GetSolutionCode()
-        {
-            var ContestStatusDb = Db.GetCollection<BsonDocument>("ContestStatus");
-
-            var filter = Builders<BsonDocument>.Filter.Exists("SolutionCode", false);
-            filter &= Builders<BsonDocument>.Filter.Eq("author.participantType", "CONTESTANT");
-            using (var cursor = await ContestStatusDb.FindAsync(filter))
-            {
-                while (cursor.MoveNext())
-                {
-                    foreach(var item in cursor.Current)
-                    {
-                        var updateSettings = new BsonDocument("$set", new BsonDocument("SolutionCode", GetSolutionCodeText(item["contestId"].AsInt64.ToString(), item["_id"].AsInt64.ToString()) ?? ""));
-                        await ContestStatusDb.UpdateOneAsync(new BsonDocument() { { "_id", item["_id"].AsInt64 } }, updateSettings);
-                    }
-                    
-                }
-            }
-        }
 
         public string GetSolutionCodeText(string contestId, string solutionId)
         {
