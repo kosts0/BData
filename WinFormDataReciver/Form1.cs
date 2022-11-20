@@ -1,5 +1,6 @@
 using Common;
 using Common.Models;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Nest;
@@ -19,6 +20,7 @@ namespace WinFormDataReciver
             MongoElasticConector = new();
             InitializeComponent();
             LoadedContestList = CfApiScripts.UpdateUsedIdList(Path.Combine(Environment.CurrentDirectory, "UsedContests.txt"), LoadedContestList);
+            CfApiScripts.ProxyInfoList = Program.Configuration.GetSection("ProxyInfoList").Get<List<ProxyInfo>>();
         }
         public List<long> LoadedContestList { get; private set; } = new();
         public List<long> InLoadContestList { get; private set; } = new();
