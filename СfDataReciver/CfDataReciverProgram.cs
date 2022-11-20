@@ -12,6 +12,3 @@ else
     Console.WriteLine("NoArgs");
     await new CfApiScripts().RefreshContestSolutionList();
 }
-
-
-

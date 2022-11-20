@@ -18,7 +18,10 @@ namespace WinFormDataReciver
             CfApiScripts = new();
             MongoElasticConector = new();
             InitializeComponent();
+            LoadedContestList = CfApiScripts.UpdateUsedIdList(Path.Combine(Environment.CurrentDirectory, "UsedContests.txt"), LoadedContestList);
         }
+        public List<long> LoadedContestList { get; private set; } = new();
+        public List<long> InLoadContestList { get; private set; } = new();
         private async Task GetSolutionCode()
         {
             var ContestStatusDb = MongoElasticConector.MongoDb.GetCollection<BsonDocument>("ContestStatus");
@@ -34,9 +37,8 @@ namespace WinFormDataReciver
                         var solutionCode = CfApiScripts.GetSolutionCodeText(item["contestId"].AsInt64.ToString(), item["_id"].AsInt64.ToString()) ?? "";
                         var updateSettings = new BsonDocument("$set", new BsonDocument("SolutionCode", solutionCode));
                         await ContestStatusDb.UpdateOneAsync(new BsonDocument() { { "_id", item["_id"].AsInt64 } }, updateSettings);
-                        this.CodeParseTextBox.Text = $"{item["id"].AsInt64}\n {solutionCode}";
+                        this.CodeParseTextBox.Text = $"Proxy: {CfApiScripts.CurrentProxy.IpPort ?? "null"} {item["id"].AsInt64}\n\r {solutionCode}";
                     }
-
                 }
             }
         }
@@ -158,9 +160,129 @@ namespace WinFormDataReciver
                         }
                                                                                              
                     }
-                    
+                }
+            }
+        }
+
+        private async void StartApiCfThread(Button button, TextBox textBox)
+        {
+            button.Enabled = false;
+            int startIndex = 1;
+            var contestStatusCollection = CfApiScripts.ContestStatus;
+            bool breakCondition = true;
+            int batchSize = 1500;
+            long contestId = getContestId;
+            InLoadContestList.Add(contestId);
+            List<BsonDocument> currentSolutionList = new();
+            do
+            {
+                currentSolutionList = CfApiScripts.GetContestSolutionList(contestId, startIndex, batchSize);
+                try
+                {
+                    await contestStatusCollection.InsertManyAsync(currentSolutionList, new InsertManyOptions() { IsOrdered = false });
+                }
+                catch (MongoBulkWriteException)
+                {
 
                 }
+                breakCondition = currentSolutionList.Count != batchSize;
+                startIndex+= batchSize;
+                textBox.Text = $"ContestId: {contestId}; count: {startIndex}";
+            } while (!breakCondition);
+            using (StreamWriter writer = new StreamWriter(Path.Combine(Environment.CurrentDirectory, "UsedContests.txt"), true))
+            {
+                await writer.WriteLineAsync($"¬ контесте {contestId} добавлено {startIndex + currentSolutionList.Count} записей о попытках");
+            }
+            InLoadContestList.Remove(contestId);
+            LoadedContestList.Add(contestId);
+            LoadCfData.Enabled = true;
+        }
+
+        private async void LoadCfData_Click(object sender, EventArgs e)
+        {
+            LoadCfData.Enabled = false;
+            int startIndex = 1;
+            var contestStatusCollection = CfApiScripts.ContestStatus;
+            bool breakCondition = true;
+            int batchSize = 1500;
+            long contestId = getContestId;
+            InLoadContestList.Add(contestId);
+            List<BsonDocument> currentSolutionList = new();
+            do
+            {
+                currentSolutionList = CfApiScripts.GetContestSolutionList(contestId, startIndex, batchSize);
+                try
+                {
+                    contestStatusCollection.InsertManyAsync(currentSolutionList, new InsertManyOptions() { IsOrdered = false });
+                }
+                catch(MongoBulkWriteException)
+                {
+
+                }
+                breakCondition = currentSolutionList.Count != batchSize;
+                startIndex+= batchSize;
+                CfFirstThread.Text = $"ContestId: {contestId}; count: {startIndex}";
+            } while (!breakCondition);
+            using (StreamWriter writer = new StreamWriter(Path.Combine(Environment.CurrentDirectory, "UsedContests.txt"), true))
+            {
+                await writer.WriteLineAsync($"¬ контесте {contestId} добавлено {startIndex + currentSolutionList.Count} записей о попытках");
+            }
+            InLoadContestList.Remove(contestId);
+            LoadedContestList.Add(contestId);
+            LoadCfData.Enabled = true;
+        }
+        long getContestId
+        {
+            get
+            {
+                if(InLoadContestList.Count == 0)
+                {
+                    return LoadedContestList.Min() - 1;
+                }
+                return Math.Min(LoadedContestList.Min(), InLoadContestList.Min()) - 1;
+            }
+        }
+        private int currentCfSubmissionThreadCount = 1;
+        private async void AddContestReciverThreadButton_Click(object sender, EventArgs e)
+        {
+
+            Button threadButton = new Button()
+            {
+                Size = LoadCfData.Size,
+                Text = $"Submission Api (поток {currentCfSubmissionThreadCount + 1})",
+            };
+            TextBox textBox = new TextBox()
+            {
+                Size = CfFirstThread.Size,
+                Location = new(CfFirstThread.Location.X, CfFirstThread.Location.Y + currentCfSubmissionThreadCount*LoadCfData.Size.Height + 10),
+            };
+            threadButton.Click += (e, s) => StartApiCfThread(threadButton, textBox);
+            var initLocation = LoadCfData.Location;
+            var diffSize = initLocation.Y + currentCfSubmissionThreadCount*LoadCfData.Size.Height + 10;
+            threadButton.Location = new Point(initLocation.X, initLocation.Y + currentCfSubmissionThreadCount*LoadCfData.Size.Height + 10);
+            this.Controls.Add(threadButton);
+            this.Controls.Add(textBox);
+            AddContestReciverThreadButton.Location = new Point(AddContestReciverThreadButton.Location.X, AddContestReciverThreadButton.Location.Y + threadButton.Size.Height + 10);
+            currentCfSubmissionThreadCount++;
+            Refresh();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            var docPath = Environment.CurrentDirectory;
+            string text = "";
+            DirectoryInfo directoryInfo = new DirectoryInfo(docPath);
+            using (StreamReader reader = new StreamReader(Path.Combine(Environment.CurrentDirectory, "UsedContests.txt")))
+            {
+                text = reader.ReadToEnd();
+            }
+            while (directoryInfo.Name != "WinFormDataReciver")
+            {
+                directoryInfo = directoryInfo.Parent;
+            }
+            using(StreamWriter writer = new StreamWriter(Path.Combine(directoryInfo.FullName, "UsedContests.txt")))
+            {
+                writer.Write(text);
             }
         }
     }

@@ -34,13 +34,14 @@
             this.UploadSolutionCodeButton = new System.Windows.Forms.Button();
             this.CodeParseTextBox = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.CfFirstThread = new System.Windows.Forms.TextBox();
+            this.LoadCfData = new System.Windows.Forms.Button();
+            this.AddContestReciverThreadButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // GetParsedSolution
             // 
-            this.GetParsedSolution.Location = new System.Drawing.Point(45, 329);
+            this.GetParsedSolution.Location = new System.Drawing.Point(34, 361);
             this.GetParsedSolution.Name = "GetParsedSolution";
             this.GetParsedSolution.Size = new System.Drawing.Size(140, 67);
             this.GetParsedSolution.TabIndex = 0;
@@ -50,7 +51,7 @@
             // 
             // UploadUsersToEs
             // 
-            this.UploadUsersToEs.Location = new System.Drawing.Point(440, 320);
+            this.UploadUsersToEs.Location = new System.Drawing.Point(246, 48);
             this.UploadUsersToEs.Name = "UploadUsersToEs";
             this.UploadUsersToEs.Size = new System.Drawing.Size(140, 108);
             this.UploadUsersToEs.TabIndex = 1;
@@ -70,7 +71,7 @@
             // 
             // UploadSolutionCodeButton
             // 
-            this.UploadSolutionCodeButton.Location = new System.Drawing.Point(605, 332);
+            this.UploadSolutionCodeButton.Location = new System.Drawing.Point(246, 162);
             this.UploadSolutionCodeButton.Name = "UploadSolutionCodeButton";
             this.UploadSolutionCodeButton.Size = new System.Drawing.Size(149, 85);
             this.UploadSolutionCodeButton.TabIndex = 3;
@@ -80,7 +81,7 @@
             // 
             // CodeParseTextBox
             // 
-            this.CodeParseTextBox.Location = new System.Drawing.Point(12, 12);
+            this.CodeParseTextBox.Location = new System.Drawing.Point(12, 48);
             this.CodeParseTextBox.Multiline = true;
             this.CodeParseTextBox.Name = "CodeParseTextBox";
             this.CodeParseTextBox.ReadOnly = true;
@@ -95,31 +96,42 @@
             this.textBox1.Size = new System.Drawing.Size(159, 27);
             this.textBox1.TabIndex = 5;
             // 
-            // textBox2
+            // CfFirstThread
             // 
-            this.textBox2.Location = new System.Drawing.Point(440, 12);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(125, 148);
-            this.textBox2.TabIndex = 6;
+            this.CfFirstThread.Location = new System.Drawing.Point(523, 23);
+            this.CfFirstThread.Name = "CfFirstThread";
+            this.CfFirstThread.ReadOnly = true;
+            this.CfFirstThread.Size = new System.Drawing.Size(265, 27);
+            this.CfFirstThread.TabIndex = 6;
             // 
-            // button1
+            // LoadCfData
             // 
-            this.button1.Location = new System.Drawing.Point(440, 166);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(125, 48);
-            this.button1.TabIndex = 7;
-            this.button1.Text = "Загрузка данных с API Cf";
-            this.button1.UseVisualStyleBackColor = true;
+            this.LoadCfData.Location = new System.Drawing.Point(392, 12);
+            this.LoadCfData.Name = "LoadCfData";
+            this.LoadCfData.Size = new System.Drawing.Size(125, 48);
+            this.LoadCfData.TabIndex = 7;
+            this.LoadCfData.Text = "Загрузка данных с API Cf";
+            this.LoadCfData.UseVisualStyleBackColor = true;
+            this.LoadCfData.Click += new System.EventHandler(this.LoadCfData_Click);
+            // 
+            // AddContestReciverThreadButton
+            // 
+            this.AddContestReciverThreadButton.Location = new System.Drawing.Point(523, 88);
+            this.AddContestReciverThreadButton.Name = "AddContestReciverThreadButton";
+            this.AddContestReciverThreadButton.Size = new System.Drawing.Size(94, 29);
+            this.AddContestReciverThreadButton.TabIndex = 8;
+            this.AddContestReciverThreadButton.Text = "+";
+            this.AddContestReciverThreadButton.UseVisualStyleBackColor = true;
+            this.AddContestReciverThreadButton.Click += new System.EventHandler(this.AddContestReciverThreadButton_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.AddContestReciverThreadButton);
+            this.Controls.Add(this.LoadCfData);
+            this.Controls.Add(this.CfFirstThread);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.CodeParseTextBox);
             this.Controls.Add(this.UploadSolutionCodeButton);
@@ -128,6 +140,7 @@
             this.Controls.Add(this.GetParsedSolution);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -141,7 +154,8 @@
         private Button UploadSolutionCodeButton;
         private TextBox CodeParseTextBox;
         private TextBox textBox1;
-        private TextBox textBox2;
-        private Button button1;
+        private TextBox CfFirstThread;
+        private Button LoadCfData;
+        private Button AddContestReciverThreadButton;
     }
 }

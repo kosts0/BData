@@ -8,10 +8,7 @@ using СfDataReciver;
 /// </summary>
 async Task MainScriptAsync()
 {
-    List<int> ForList = Enumerable.Range(1, 1000).ToList();
-    Parallel.ForEach(ForList, intVar => {
-    new CfApiScripts().GetJsonRequest(url: "https://codeforces.com/api/contest.status?contestId=1736&from=1&count=100");
-        Console.WriteLine($"{intVar} successed");
-        });
+    var connString = System.Environment.GetEnvironmentVariable("MONGODB_CONNSTRING");
+    Console.WriteLine(connString);
 }
  await MainScriptAsync();

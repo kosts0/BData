@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="UsedContests.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="UsedContests.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\СfDataReciver\СfDataReciver.csproj" />
   </ItemGroup>
 
