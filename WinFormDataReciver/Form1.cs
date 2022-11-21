@@ -39,7 +39,7 @@ namespace WinFormDataReciver
                         var solutionCode = CfApiScripts.GetSolutionCodeText(item["contestId"].AsInt64.ToString(), item["_id"].AsInt64.ToString()) ?? "";
                         var updateSettings = new BsonDocument("$set", new BsonDocument("SolutionCode", solutionCode));
                         await ContestStatusDb.UpdateOneAsync(new BsonDocument() { { "_id", item["_id"].AsInt64 } }, updateSettings);
-                        this.CodeParseTextBox.Text = $"Proxy: {CfApiScripts.CurrentProxy.IpPort ?? "null"} {item["id"].AsInt64}\n\r {solutionCode}";
+                        this.CodeParseTextBox.Text = $"Proxy: {CfApiScripts.CurrentProxy.IpPort ?? "null"}"+ Environment.NewLine + $"{item["id"].AsInt64}\n" + $"{solutionCode}";
                     }
                 }
             }
@@ -113,7 +113,7 @@ namespace WinFormDataReciver
                             throw new Exception(response.DebugInformation);
                         }
                         loadedCount += cursor.Current.Count();
-
+                        textBox1.Text = $"{loadedCount}";
                     }
                 }
             }
@@ -178,7 +178,7 @@ namespace WinFormDataReciver
             List<BsonDocument> currentSolutionList = new();
             do
             {
-                currentSolutionList = CfApiScripts.GetContestSolutionList(contestId, startIndex, batchSize);
+                currentSolutionList = await CfApiScripts.GetContestSolutionList(contestId, startIndex, batchSize);
                 try
                 {
                     await contestStatusCollection.InsertManyAsync(currentSolutionList, new InsertManyOptions() { IsOrdered = false });
@@ -202,36 +202,7 @@ namespace WinFormDataReciver
 
         private async void LoadCfData_Click(object sender, EventArgs e)
         {
-            LoadCfData.Enabled = false;
-            int startIndex = 1;
-            var contestStatusCollection = CfApiScripts.ContestStatus;
-            bool breakCondition = true;
-            int batchSize = 1500;
-            long contestId = getContestId;
-            InLoadContestList.Add(contestId);
-            List<BsonDocument> currentSolutionList = new();
-            do
-            {
-                currentSolutionList = CfApiScripts.GetContestSolutionList(contestId, startIndex, batchSize);
-                try
-                {
-                    contestStatusCollection.InsertManyAsync(currentSolutionList, new InsertManyOptions() { IsOrdered = false });
-                }
-                catch(MongoBulkWriteException)
-                {
-
-                }
-                breakCondition = currentSolutionList.Count != batchSize;
-                startIndex+= batchSize;
-                CfFirstThread.Text = $"ContestId: {contestId}; count: {startIndex}";
-            } while (!breakCondition);
-            using (StreamWriter writer = new StreamWriter(Path.Combine(Environment.CurrentDirectory, "UsedContests.txt"), true))
-            {
-                await writer.WriteLineAsync($"¬ контесте {contestId} добавлено {startIndex + currentSolutionList.Count} записей о попытках");
-            }
-            InLoadContestList.Remove(contestId);
-            LoadedContestList.Add(contestId);
-            LoadCfData.Enabled = true;
+            StartApiCfThread(LoadCfData, CfFirstThread);
         }
         long getContestId
         {
@@ -257,6 +228,7 @@ namespace WinFormDataReciver
             {
                 Size = CfFirstThread.Size,
                 Location = new(CfFirstThread.Location.X, CfFirstThread.Location.Y + currentCfSubmissionThreadCount*LoadCfData.Size.Height + 10),
+                ReadOnly = true,
             };
             threadButton.Click += (e, s) => StartApiCfThread(threadButton, textBox);
             var initLocation = LoadCfData.Location;

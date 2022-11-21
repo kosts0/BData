@@ -45,7 +45,7 @@
             this.GetParsedSolution.Name = "GetParsedSolution";
             this.GetParsedSolution.Size = new System.Drawing.Size(140, 67);
             this.GetParsedSolution.TabIndex = 0;
-            this.GetParsedSolution.Text = "Парсинг кода решения";
+            this.GetParsedSolution.Text = "Парсинг кода решений";
             this.GetParsedSolution.UseVisualStyleBackColor = true;
             this.GetParsedSolution.Click += new System.EventHandler(this.GetParsedSolution_Click);
             // 
@@ -110,7 +110,7 @@
             this.LoadCfData.Name = "LoadCfData";
             this.LoadCfData.Size = new System.Drawing.Size(125, 48);
             this.LoadCfData.TabIndex = 7;
-            this.LoadCfData.Text = "Загрузка данных с API Cf";
+            this.LoadCfData.Text = "Submission Api (поток 1)";
             this.LoadCfData.UseVisualStyleBackColor = true;
             this.LoadCfData.Click += new System.EventHandler(this.LoadCfData_Click);
             // 

@@ -95,7 +95,7 @@ namespace СfDataReciver
         };
         static Random rnd = new Random();
 
-        public JObject GetJsonRequest(string url)
+        public async Task<JObject> GetJsonRequest(string url)
         {
             JObject getRequest()
             {
@@ -147,11 +147,11 @@ namespace СfDataReciver
         /// <summary>
         /// Обновить коллекцию пользвателей
         /// </summary>
-        void RefreshUsersCollection()
+        async void RefreshUsersCollection()
         {
             Db.DropCollection("Users");
             var collection = Db.GetCollection<BsonDocument>("Users");
-            var result = GetJsonRequest(codeforcesApiUrl + "user.ratedList?activeOnly=false&includeRetired=true");
+            var result = await GetJsonRequest(codeforcesApiUrl + "user.ratedList?activeOnly=false&includeRetired=true");
             foreach (var item in result.SelectToken("result").Children())
             {
                 BsonDocument bsonElements = FromJsonToBson(item);
@@ -163,11 +163,11 @@ namespace СfDataReciver
         /// <summary>
         /// Обновить коллекцию архива задач
         /// </summary>
-        void RefreshProblemsArchive()
+        async void RefreshProblemsArchive()
         {
             Db.DropCollection("Archive");
             var collection = Db.GetCollection<BsonDocument>("Archive");
-            var result = GetJsonRequest(codeforcesApiUrl + "problemset.problems?lang=ru");
+            var result = await GetJsonRequest(codeforcesApiUrl + "problemset.problems?lang=ru");
             foreach (var item in result.SelectToken("$..problems").Children())
             {
                 BsonDocument bson = FromJsonToBson(item);
@@ -180,11 +180,11 @@ namespace СfDataReciver
         /// <summary>
         /// Обновить коллекцию контестов
         /// </summary>
-        void RefreshContestArchive()
+        async void RefreshContestArchive()
         {
             Db.DropCollection("ContestList");
             var collection = Db.GetCollection<BsonDocument>("ContestList");
-            var result = GetJsonRequest(codeforcesApiUrl + "contest.list?gym=false");
+            var result = await GetJsonRequest(codeforcesApiUrl + "contest.list?gym=false");
             foreach (var item in result.SelectToken("result").Children())
             {
                 BsonDocument bson = FromJsonToBson(item);
@@ -197,10 +197,10 @@ namespace СfDataReciver
         /// <summary>
         /// Получить список попыток по контесту
         /// </summary>
-        public List<BsonDocument> GetContestSolutionList(long contestId, int startIndex, int count)
+        public async Task<List<BsonDocument>> GetContestSolutionList(long contestId, int startIndex, int count)
         {
             List<BsonDocument> contestSolutionList = new();
-            var result = GetJsonRequest(codeforcesApiUrl + $"contest.status?contestId={contestId}&from={startIndex}&count={count}&lang=ru");
+            var result = await GetJsonRequest(codeforcesApiUrl + $"contest.status?contestId={contestId}&from={startIndex}&count={count}&lang=ru");
             if (result.ContainsKey("comment") && result["comment"].ToString() == $"contestId: Contest with id {contestId} not found")
             {
                 return contestSolutionList;
@@ -236,7 +236,7 @@ namespace СfDataReciver
             List<BsonDocument> currentSolutionList = new();
             do
             {
-                currentSolutionList = GetContestSolutionList(contestId, startIndex, batchSize);
+                currentSolutionList = await GetContestSolutionList(contestId, startIndex, batchSize);
                 try
                 {
                     await contestStatusCollection.InsertManyAsync(currentSolutionList, new InsertManyOptions() { IsOrdered = false });
@@ -303,7 +303,7 @@ namespace СfDataReciver
                 if(responce.StatusCode == HttpStatusCode.Redirect)
                 {
                     ChangeClient();
-                    Thread.Sleep(TimeSpan.FromSeconds(rnd.Next()%10 + 10));
+                    Thread.Sleep(TimeSpan.FromSeconds(rnd.Next()%4));
                 }
                 var responceContent = await responce.Content.ReadAsStringAsync();
                 return responceContent;

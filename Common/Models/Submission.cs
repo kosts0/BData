@@ -46,5 +46,6 @@ namespace Common.Models
         public string SolutionCode { get; set; }
         public string AuthorHandle { get; set; }
         public string ParticipantType { get; set; }
+        public int? SolutionCodeLength => string.IsNullOrEmpty(SolutionCode) ? null : SolutionCode.Split('\n').Length;
     }
 }
