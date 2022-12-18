@@ -55,8 +55,9 @@ namespace СfDataReciver
         {
             WriteCollection = writeCollection;
         }
-        private List<long> UsedIdList(string filePath = @"C:\Users\skld0\source\repos\AnalData\СfDataReciver\UsedContests.txt")
+        private List<long> UsedIdList(string filePath = null)
         {
+            filePath ??= Path.Combine(Environment.CurrentDirectory, "UsedContests.txt");
             List<long> usedIdList = new();
             using (FileStream fstream = File.OpenRead(filePath))
             {
@@ -267,7 +268,7 @@ namespace СfDataReciver
         {
             var proxyInfo = ProxyInfoList[proxyInfoIndex];
             HttpClient httpClient = new();
-            if (proxyInfo.IpPort == null)
+            if (string.IsNullOrEmpty(proxyInfo.IpPort))
             {
                 httpClient = new HttpClient(new HttpClientHandler()
                 {

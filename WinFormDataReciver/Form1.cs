@@ -59,31 +59,6 @@ namespace WinFormDataReciver
             GetParsedSolution.Enabled = true;
         }
 
-        private async void UploadUsersToEs_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                UploadUsersToEs.Enabled = false;
-                var UsersCollection = MongoElasticConector.Init().MongoDb.GetCollection<User>("Users");
-                string indexName = "user_index";
-                MongoElasticConector.ElasticClient.Indices.Delete(indexName);
-                MongoElasticConector.ElasticClient.Indices.Create(indexName, index => index.Map<User>(x => x.AutoMap()));
-                using (var cursor = await UsersCollection.FindAsync<User>(new BsonDocument()))
-                {
-                    while (cursor.MoveNext())
-                    {
-                        await MongoElasticConector.ElasticClient.IndexManyAsync<User>(cursor.Current, indexName);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                UploadUsersToEs.Enabled = true;
-                MessageBox.Show("Загрузка пользователей в Es " + ex.Message);
-            }
-            UploadUsersToEs.Enabled = true;
-        }
-
         private async void LoadToEsDataButton_Click(object sender, EventArgs e)
         {
             try
@@ -181,6 +156,7 @@ namespace WinFormDataReciver
                 currentSolutionList = await CfApiScripts.GetContestSolutionList(contestId, startIndex, batchSize);
                 try
                 {
+                    if (currentSolutionList.Count == 0) continue;
                     await contestStatusCollection.InsertManyAsync(currentSolutionList, new InsertManyOptions() { IsOrdered = false });
                 }
                 catch (MongoBulkWriteException)
